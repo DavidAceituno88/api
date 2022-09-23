@@ -1,0 +1,1 @@
+dotnet ef dbcontext scaffold "Server=LIBERO\SQLEXPRESS;Database=learnDB;Trusted_Connection=True;" Microsoft.EntityFramweorkCore.SqlServer --output-dir Models
