@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Models;
-
+using Swashbuckle.AspNetCore.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddTransient<Seeder>();
 builder.Services.AddDbContext<TodoContext>(opt =>
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); //Here we reference the conection string to the one in appsetings.json
+    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+   builder.Services.AddMvc();
+builder.Services.AddSwaggerGen();
 //builder.Services.AddSwaggerGen(c =>
 //{
 //    c.SwaggerDoc("v1", new() { Title = "TodoApi", Version = "v1" });
@@ -17,6 +20,12 @@ builder.Services.AddDbContext<TodoContext>(opt =>
 
 var app = builder.Build();
  
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+c.SwaggerEndpoint("/swagger/v1/swagger.json", "TodoApi");
+});
+
 if (args.Length == 1 && args[0].ToLower() == "seeddata")
 SeedData(app);
 
