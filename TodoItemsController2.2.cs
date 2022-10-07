@@ -25,10 +25,10 @@ namespace TodoApi.Controllers
 
         // GET: api/TodoItems
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetTodoItems()
+        public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
         {
             return await _context.TodoItems
-                .Select(x => ItemToDTO(x))
+                .Include(x => x.Users)
                 .ToListAsync();
         }
         
@@ -65,7 +65,7 @@ namespace TodoApi.Controllers
         
         // GET: api/TodoItems/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<TodoItemDTO>> GetTodoItem(long id)
+        public async Task<ActionResult<TodoItem>> GetTodoItem(long id)
         {
             var todoItem = await _context.TodoItems.FindAsync(id);
 
@@ -74,18 +74,15 @@ namespace TodoApi.Controllers
                 return NotFound();
             }
 
-            return ItemToDTO(todoItem);
+            return (todoItem);
         }
         // PUT: api/TodoItems/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut]
         
         public async Task<ActionResult> UpdateTodoItem (long id, TodoItem todoItems)
-        {
-            
-            
+        {      
               
-            
             if (id != todoItems.Id)
             {
                 return BadRequest();
@@ -119,31 +116,16 @@ namespace TodoApi.Controllers
         //Here i modified the post method to accept a list of todoItems from the user.
         public async Task<ActionResult<TodoItem>> CreateTodoItem(List<TodoItem> items)
         {
-
-            //This is a list i created so that later i can return the list added.
-            _context.TodoItems.AddRange(items);
-            await _context.SaveChangesAsync();
-
-            List<String> uris = new List<string>();
-           foreach(var temp in items)
-                {
-                    uris.Add("https://localhost:7296/api/todoitems/"+temp.Id);
-                }
-        
-            return Ok();
-          /*  var todoItem = new TodoItem
+            var exist = await _context.Users.AnyAsync(x => x.UserId == items[0].UserId);
+            if(!exist)
             {
-                IsComplete = todoItemDTO.IsComplete,
-                Name = todoItemDTO.Name
-            };
-
-            _context.TodoItems.Add(todoItem);
+                return BadRequest($"User {items[0].UserId} not found");
+            }
+            //This is a list i created so that later i can return the list added.
+            _context.AddRange(items);
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction(
-                nameof(GetTodoItem),
-                new { id = todoItem.Id },
-                ItemToDTO(todoItem));*/
+            return Ok();
+           
         }
 
         // DELETE: api/TodoItems/5
