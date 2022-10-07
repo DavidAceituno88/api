@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +12,11 @@ builder.Services.AddTransient<Seeder>();
 builder.Services.AddDbContext<TodoContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-   builder.Services.AddMvc();
+builder.Services.AddMvc();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddControllers().AddJsonOptions(x => 
+            x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 //builder.Services.AddSwaggerGen(c =>
 //{
 //    c.SwaggerDoc("v1", new() { Title = "TodoApi", Version = "v1" });
